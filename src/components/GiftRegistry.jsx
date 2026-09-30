@@ -40,31 +40,32 @@ export function GiftRegistry() {
           </div>
 
           <h3 className="font-serif text-2xl text-[#1A2820] font-semibold mb-2">
-            Detalhes para Contribuição (M-Pesa & e-Mola)
+            Detalhes para Contribuição
           </h3>
           <p className="text-xs sm:text-sm text-[#4D5E54] mb-8 max-w-md mx-auto">
-            Disponibilizamos os seguintes números para envio de qualquer contribuição:
+            Titular: <span className="font-semibold text-[#1A2820]">Hélio Nhamposse</span>
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 text-left">
             {[
-              { label: 'M-Pesa', val: paymentInfo.mpesa, raw: '840000000', key: 'mpesa' },
-              { label: 'e-Mola', val: paymentInfo.emola, raw: '860000000', key: 'emola' },
+              { label: 'M-Pesa', val: '845585442', display: '+258 84 558 5442', titular: 'Hélio Nhamposse', key: 'mpesa' },
+              { label: 'e-Mola', val: '866091899', display: '866091899', titular: 'Hélio Nhamposse', key: 'emola' },
             ].map((method) => (
               <div key={method.key} className="bg-white rounded-2xl p-5 border border-[#2D6A4F]/20 flex items-center justify-between gap-3 shadow-xs hover:border-[#2D6A4F]/50 transition-colors">
                 <div className="overflow-hidden">
                   <span className="text-[10px] uppercase font-bold text-[#2D6A4F] block tracking-wider">{method.label}</span>
-                  <span className="text-sm font-semibold text-[#1A2820] truncate block">{method.val}</span>
+                  <span className="text-base font-bold text-[#1A2820] tracking-wide block">{method.display}</span>
+                  <span className="text-xs text-gray-500 block">Titular: {method.titular}</span>
                 </div>
                 <button
                   onClick={() => copyToClipboard(method.val, method.key)}
                   className="px-3.5 py-2 rounded-xl bg-[#F7F9F6] hover:bg-[#2D6A4F]/10 text-[#2D6A4F] text-xs font-semibold flex items-center gap-1.5 transition-colors shrink-0"
-                  title="Copiar dados"
+                  title="Copiar número"
                 >
                   {copiedKey === method.key ? (
                     <>
                       <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      <span className="text-emerald-600">Copiado</span>
+                      <span className="text-emerald-600 font-bold">Copiado!</span>
                     </>
                   ) : (
                     <>

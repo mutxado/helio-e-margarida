@@ -23,7 +23,7 @@ export const weddingData = {
     tagline: "CELEBRAÇÃO DO NOSSO AMOR · MAPUTO",
     dateText: "Sábado, 28 de Novembro de 2026",
     targetDate: "2026-11-28T09:00:00",
-    whatsappPhone: "258840000000", // atualizável
+    whatsappPhone: "258845585442",
     flyerImage: `${base}images/photo_hug.jpg`
   },
 
@@ -95,10 +95,12 @@ export const weddingData = {
   ],
 
   gifts: {
-    intro: "A vossa presença e orações são o nosso maior presente. Para quem desejar nos abençoar com uma contribuição para o nosso novo lar e vida a dois:",
+    intro: "A vossa presença no nosso casamento é o maior presente que poderíamos desejar. Para quem desejar nos abençoar com qualquer contribuição:",
     paymentInfo: {
-      mpesa: "M-Pesa: 84XXXXXXX (Hélio Nhamposse)",
-      emola: "e-Mola: 86XXXXXXX / 87XXXXXXX (Margarida Guilima)"
+      mpesa: "M-Pesa: 845585442 (Hélio Nhamposse)",
+      emola: "e-Mola: 866091899 (Hélio Nhamposse)",
+      mpesaRaw: "845585442",
+      emolaRaw: "866091899"
     }
   }
 };

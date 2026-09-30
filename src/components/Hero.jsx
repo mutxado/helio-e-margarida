@@ -37,16 +37,17 @@ export function Hero() {
   return (
     <section id="hero" className="relative min-h-screen flex items-center justify-center pt-28 pb-16 px-4 overflow-hidden">
       
-      {/* Background with Subtle Dark Botanical Overlay */}
+      {/* Background with Optimized Framing so faces are visible */}
       <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 scale-105"
+        className="absolute inset-0 bg-cover bg-[center_18%] sm:bg-[center_22%] bg-no-repeat transition-all duration-1000 scale-105"
         style={{ backgroundImage: `url('${weddingData.couple.heroBg}')` }}
       />
-      <div className="absolute inset-0 bg-gradient-to-b from-[#1A2E24]/75 via-[#1A2E24]/85 to-[#15241C]/95" />
+      {/* Dynamic Overlay Gradient ensuring high text contrast while keeping faces visible */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#0e1b15]/85 via-[#13251c]/70 to-[#0b1410]/95" />
 
       {/* Decorative Golden & Emerald Orbs */}
-      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[#2D6A4F]/30 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-[#C5A059]/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[#2D6A4F]/25 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-[#C5A059]/15 rounded-full blur-3xl pointer-events-none" />
 
       {/* Hero Content Box */}
       <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
