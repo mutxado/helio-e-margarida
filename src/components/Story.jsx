@@ -32,11 +32,11 @@ export function Story() {
               >
                 {/* Image Card */}
                 <div className="w-full md:w-1/2 group">
-                  <div className="relative rounded-3xl overflow-hidden shadow-xl border-4 border-[#F7F9F6] group-hover:shadow-2xl transition-all duration-500 max-h-[420px]">
+                  <div className="relative rounded-3xl overflow-hidden shadow-xl border-4 border-[#F7F9F6] group-hover:shadow-2xl transition-all duration-500 w-full max-w-md mx-auto aspect-[3/4] bg-stone-100">
                     <img
                       src={item.image}
                       alt={item.title}
-                      className="w-full h-80 sm:h-96 object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
                     />
                     <div className="absolute top-4 left-4 bg-[#1B4332]/90 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-serif font-bold text-[#E8D7B0] border border-[#C5A059]/40 shadow-md">
                       {item.year}

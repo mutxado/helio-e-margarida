@@ -25,7 +25,7 @@ export function Couple() {
           
           {/* Groom Card */}
           <div className="glass-card-emerald rounded-3xl p-8 sm:p-10 shadow-lg border border-[#2D6A4F]/20 flex flex-col items-center text-center hover:shadow-xl transition-all duration-300 group">
-            <div className="relative w-56 h-72 sm:w-64 sm:h-80 rounded-[40px] overflow-hidden mb-8 shadow-xl border-4 border-white group-hover:scale-105 transition-transform duration-500">
+            <div className="relative w-60 h-80 sm:w-64 sm:h-84 rounded-[40px] overflow-hidden mb-8 shadow-xl border-4 border-white group-hover:scale-105 transition-transform duration-500 bg-stone-100">
               <img
                 src={groom.image}
                 alt={groom.fullName}
@@ -53,11 +53,11 @@ export function Couple() {
 
           {/* Bride Card */}
           <div className="glass-card-emerald rounded-3xl p-8 sm:p-10 shadow-lg border border-[#2D6A4F]/20 flex flex-col items-center text-center hover:shadow-xl transition-all duration-300 group">
-            <div className="relative w-56 h-72 sm:w-64 sm:h-80 rounded-[40px] overflow-hidden mb-8 shadow-xl border-4 border-white group-hover:scale-105 transition-transform duration-500">
+            <div className="relative w-60 h-80 sm:w-64 sm:h-84 rounded-[40px] overflow-hidden mb-8 shadow-xl border-4 border-white group-hover:scale-105 transition-transform duration-500 bg-stone-100">
               <img
                 src={bride.image}
                 alt={bride.fullName}
-                className="w-full h-full object-cover object-top"
+                className="w-full h-full object-cover object-[70%_top]"
               />
             </div>
             

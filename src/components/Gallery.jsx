@@ -29,7 +29,7 @@ export function Gallery() {
             <div
               key={photo.id}
               onClick={() => setSelectedPhoto(photo)}
-              className="relative group rounded-3xl overflow-hidden h-80 sm:h-96 cursor-pointer shadow-md border-2 border-white hover:shadow-2xl transition-all duration-500"
+              className="relative group rounded-3xl overflow-hidden aspect-[3/4] w-full cursor-pointer shadow-md border-2 border-white hover:shadow-2xl transition-all duration-500 bg-stone-100"
             >
               <img
                 src={photo.url}
