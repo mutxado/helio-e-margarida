@@ -50,23 +50,33 @@ export const weddingData = {
 
   events: [
     {
-      id: "ceremony",
-      title: "Cerimónia Civil & Religiosa",
+      id: "church",
+      title: "Cerimónia Religiosa",
       time: "09:00 H",
-      place: "Igreja & Registo Civil",
-      address: "Cidade de Maputo, Moçambique",
-      details: "A celebração solene do nosso matrimónio diante de Deus, familiares e amigos queridos.",
-      mapUrl: "https://maps.google.com/?q=Maputo+Mozambique",
+      place: "Igreja Embaixada de Cristo",
+      address: "Maxaquene, ao lado do Comando da Polícia Municipal, Maputo",
+      details: "A celebração solene e bênção do nosso matrimónio diante de Deus e dos nossos entes queridos.",
+      mapUrl: "https://maps.google.com/?q=Embaixada+de+Cristo+Maxaquene+Maputo",
       icon: "Church"
     },
     {
+      id: "civil",
+      title: "Registo Civil",
+      time: "A Seguir",
+      place: "Conservatória da Costa do Sol",
+      address: "Costa do Sol, Cidade de Maputo",
+      details: "A oficialização legal do nosso matrimónio perante a lei e testemunhas.",
+      mapUrl: "https://maps.google.com/?q=Conservatoria+Registo+Civil+Costa+do+Sol+Maputo",
+      icon: "FileCheck"
+    },
+    {
       id: "reception",
-      title: "Copo de Água & Recepção Festiva",
+      title: "Copo de Água & Recepção",
       time: "14:00 H",
-      place: "Salão de Eventos",
-      address: "Cidade de Maputo, Moçambique",
-      details: "Um banquete inesquecível com almoço, boa música, brinde e muita celebração.",
-      mapUrl: "https://maps.google.com/?q=Maputo+Mozambique",
+      place: "Salão Eliana Eventos",
+      address: "Perto da FACIM, Paragem Dona Nhelete",
+      details: "Banquete festivo, brinde, corte do bolo e celebração com todos os convidados.",
+      mapUrl: "https://maps.google.com/?q=FACIM+Ricatla+Maputo",
       icon: "PartyPopper"
     }
   ],
