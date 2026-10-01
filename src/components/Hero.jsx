@@ -35,7 +35,7 @@ export function Hero() {
   }, []);
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center pt-28 pb-16 px-4 overflow-hidden">
+    <section id="hero" className="relative min-h-screen flex items-center justify-center pt-36 sm:pt-44 pb-20 px-4 overflow-hidden">
       
       {/* Background with Optimized Framing so faces are visible */}
       <div 
@@ -53,7 +53,7 @@ export function Hero() {
       <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
         
         {/* Floating Blessing Pill */}
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-[#C5A059]/40 text-[#E8D7B0] text-xs uppercase tracking-widest font-semibold mb-8 shadow-md animate-fadeIn">
+        <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-[#C5A059]/40 text-[#E8D7B0] text-xs uppercase tracking-widest font-semibold mb-8 shadow-md animate-fadeIn">
           <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
           <span>Com a Bênção de Deus & das Nossas Famílias</span>
           <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
