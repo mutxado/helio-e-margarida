@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { 
   Lock, Users, CheckCircle, XCircle, Search, Download, Trash2, LogOut, 
   ArrowLeft, RefreshCw, Sparkles, LayoutGrid, Plus, Edit3, ArrowRightLeft, 
-  Printer, UserPlus, UserMinus, Check, AlertCircle, X, ChevronRight, Hash
+  Printer, UserPlus, UserMinus, Check, AlertCircle, X, ChevronRight, Hash,
+  UserCheck, CornerDownRight
 } from 'lucide-react';
 import { weddingData } from '../data/weddingData';
 
@@ -23,6 +24,9 @@ export function AdminDashboard({ onBack }) {
   const [seatingAssignments, setSeatingAssignments] = useState({}); // { guestId: tableId }
   const [tableSearchQuery, setTableSearchQuery] = useState('');
   const [tableFilter, setTableFilter] = useState('todos'); // 'todos' | 'com_vagas' | 'lotadas'
+
+  // Inline Quick Add inputs per table: { [tableId]: { name: '', seats: 1 } }
+  const [quickInputs, setQuickInputs] = useState({});
 
   // Modal / Form states
   const [isAddTableOpen, setIsAddTableOpen] = useState(false);
@@ -208,8 +212,21 @@ export function AdminDashboard({ onBack }) {
     localStorage.setItem('helio_margarida_seating_assignments', JSON.stringify(updatedAssignments));
   };
 
+  const handleClearTable = (tableId) => {
+    const assignedGuests = allEligibleGuests.filter(g => seatingAssignments[g.id] === tableId);
+    if (assignedGuests.length === 0) return;
+
+    if (window.confirm(`Deseja remover todos os ${assignedGuests.length} convidados desta mesa?`)) {
+      const updatedAssignments = { ...seatingAssignments };
+      assignedGuests.forEach(g => {
+        delete updatedAssignments[g.id];
+      });
+      setSeatingAssignments(updatedAssignments);
+      localStorage.setItem('helio_margarida_seating_assignments', JSON.stringify(updatedAssignments));
+    }
+  };
+
   // Seating & Guests Actions
-  // Build unified list of all eligible guests (RSVP confirmed + manual guests)
   const allEligibleGuests = [
     ...confirmations
       .filter(c => c.attending === 'sim')
@@ -230,6 +247,36 @@ export function AdminDashboard({ onBack }) {
       tableId: seatingAssignments[m.id] || null
     }))
   ];
+
+  // Quick Direct Add Guest to a Specific Table
+  const handleQuickAddGuestToTable = (e, tableId) => {
+    e.preventDefault();
+    const inputState = quickInputs[tableId] || { name: '', seats: 1 };
+    const name = (inputState.name || '').trim();
+    const seats = parseInt(inputState.seats, 10) || 1;
+
+    if (!name) return;
+
+    const newGuest = {
+      id: `manual-${Date.now()}`,
+      name: name,
+      seats: seats
+    };
+
+    const updatedManual = [...manualGuests, newGuest];
+    setManualGuests(updatedManual);
+    localStorage.setItem('helio_margarida_manual_guests', JSON.stringify(updatedManual));
+
+    const updatedAssignments = { ...seatingAssignments, [newGuest.id]: tableId };
+    setSeatingAssignments(updatedAssignments);
+    localStorage.setItem('helio_margarida_seating_assignments', JSON.stringify(updatedAssignments));
+
+    // Reset input
+    setQuickInputs({
+      ...quickInputs,
+      [tableId]: { name: '', seats: 1 }
+    });
+  };
 
   const handleAddManualGuest = (e) => {
     e.preventDefault();
@@ -257,16 +304,26 @@ export function AdminDashboard({ onBack }) {
     setIsAddManualGuestOpen(false);
   };
 
-  const handleDeleteManualGuest = (guestId) => {
-    if (window.confirm('Deseja remover este convidado manual?')) {
-      const updated = manualGuests.filter(g => g.id !== guestId);
-      setManualGuests(updated);
-      localStorage.setItem('helio_margarida_manual_guests', JSON.stringify(updated));
+  const handleDeleteGuest = (guest) => {
+    if (guest.source === 'manual') {
+      if (window.confirm(`Deseja apagar o convidado "${guest.name}" do sistema?`)) {
+        const updated = manualGuests.filter(g => g.id !== guest.id);
+        setManualGuests(updated);
+        localStorage.setItem('helio_margarida_manual_guests', JSON.stringify(updated));
 
-      const updatedAssignments = { ...seatingAssignments };
-      delete updatedAssignments[guestId];
-      setSeatingAssignments(updatedAssignments);
-      localStorage.setItem('helio_margarida_seating_assignments', JSON.stringify(updatedAssignments));
+        const updatedAssignments = { ...seatingAssignments };
+        delete updatedAssignments[guest.id];
+        setSeatingAssignments(updatedAssignments);
+        localStorage.setItem('helio_margarida_seating_assignments', JSON.stringify(updatedAssignments));
+      }
+    } else {
+      // RSVP guest: remove from table assignment
+      if (window.confirm(`Remover "${guest.name}" desta mesa? (Ele continuará na lista RSVP de confirmações)`)) {
+        const updatedAssignments = { ...seatingAssignments };
+        delete updatedAssignments[guest.id];
+        setSeatingAssignments(updatedAssignments);
+        localStorage.setItem('helio_margarida_seating_assignments', JSON.stringify(updatedAssignments));
+      }
     }
   };
 
@@ -820,6 +877,7 @@ export function AdminDashboard({ onBack }) {
                   const { guests, occupiedSeats } = getTableOccupancy(table.id);
                   const isFull = occupiedSeats >= table.capacity;
                   const percentage = Math.min(100, Math.round((occupiedSeats / table.capacity) * 100));
+                  const currentInput = quickInputs[table.id] || { name: '', seats: 1 };
 
                   return (
                     <div
@@ -831,7 +889,7 @@ export function AdminDashboard({ onBack }) {
                         <div className="flex items-start justify-between gap-3 mb-3">
                           <div>
                             <span className="text-[10px] uppercase font-bold text-[#C5A059] tracking-wider block">
-                              Mesa do Casamento
+                              MESA DO CASAMENTO
                             </span>
                             <h3 className="font-serif text-xl font-bold text-[#1A2820] leading-snug">
                               {table.name}
@@ -875,20 +933,31 @@ export function AdminDashboard({ onBack }) {
 
                         {/* Guest List Inside Table */}
                         <div className="space-y-2 mb-6">
-                          <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider block mb-1">
-                            Convidados Sentados ({guests.length})
-                          </span>
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                              CONVIDADOS SENTADOS ({guests.length})
+                            </span>
+                            {guests.length > 0 && (
+                              <button
+                                onClick={() => handleClearTable(table.id)}
+                                className="text-[10px] text-rose-600 hover:underline font-bold uppercase tracking-wider"
+                                title="Limpar todos os convidados desta mesa"
+                              >
+                                Limpar Mesa
+                              </button>
+                            )}
+                          </div>
 
                           {guests.length === 0 ? (
-                            <p className="text-xs text-gray-400 italic py-3 text-center bg-[#F7F9F6] rounded-2xl">
+                            <p className="text-xs text-gray-400 italic py-4 text-center bg-[#F7F9F6] rounded-2xl border border-dashed border-gray-200">
                               Mesa vazia. Adicione convidados abaixo.
                             </p>
                           ) : (
-                            <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                            <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
                               {guests.map((g) => (
                                 <div
                                   key={g.id}
-                                  className="p-2.5 rounded-xl bg-[#F7F9F6] border border-[#2D6A4F]/10 flex items-center justify-between gap-2 text-xs"
+                                  className="p-3 rounded-2xl bg-[#F7F9F6] border border-[#2D6A4F]/15 flex items-center justify-between gap-2 text-xs hover:border-[#2D6A4F]/40 transition-colors"
                                 >
                                   <div className="overflow-hidden">
                                     <span className="font-bold text-[#1A2820] truncate block">{g.name}</span>
@@ -900,17 +969,17 @@ export function AdminDashboard({ onBack }) {
                                   <div className="flex items-center gap-1 shrink-0">
                                     <button
                                       onClick={() => setTransferringGuest(g)}
-                                      className="p-1 text-gray-500 hover:text-[#1B4332] hover:bg-white rounded-md transition-colors"
+                                      className="p-1.5 text-gray-500 hover:text-[#1B4332] hover:bg-white rounded-lg transition-colors border border-transparent hover:border-gray-200"
                                       title="Transferir para outra mesa"
                                     >
                                       <ArrowRightLeft className="w-3.5 h-3.5" />
                                     </button>
                                     <button
-                                      onClick={() => handleAssignGuestToTable(g.id, null)}
-                                      className="p-1 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors"
-                                      title="Remover desta mesa"
+                                      onClick={() => handleDeleteGuest(g)}
+                                      className="p-1.5 text-rose-500 hover:text-rose-700 hover:bg-rose-50 rounded-lg transition-colors border border-transparent hover:border-rose-200"
+                                      title="Remover / Deletar convidado desta mesa"
                                     >
-                                      <UserMinus className="w-3.5 h-3.5" />
+                                      <Trash2 className="w-3.5 h-3.5" />
                                     </button>
                                   </div>
                                 </div>
@@ -920,36 +989,79 @@ export function AdminDashboard({ onBack }) {
                         </div>
                       </div>
 
-                      {/* Add Guest directly into this Table */}
-                      <div className="pt-4 border-t border-[#2D6A4F]/10">
-                        {unassignedGuests.length > 0 && !isFull ? (
-                          <div className="flex items-center gap-2">
-                            <select
-                              onChange={(e) => {
-                                if (e.target.value) {
-                                  handleAssignGuestToTable(e.target.value, table.id);
-                                  e.target.value = '';
-                                }
-                              }}
-                              defaultValue=""
-                              className="w-full text-xs px-3 py-2 rounded-xl bg-[#F7F9F6] border border-[#2D6A4F]/25 text-[#1A2820] font-medium focus:outline-hidden cursor-pointer"
-                            >
-                              <option value="" disabled>+ Adicionar da lista pendente...</option>
-                              {unassignedGuests.map(ug => (
-                                <option key={ug.id} value={ug.id}>
-                                  {ug.name} ({ug.seats} lug.)
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        ) : isFull ? (
-                          <p className="text-[10px] text-center font-bold text-rose-600 uppercase tracking-wider py-1">
-                            Mesa Lotada
-                          </p>
+                      {/* Add Guest Section on this Specific Table */}
+                      <div className="pt-4 border-t border-[#2D6A4F]/10 space-y-3">
+                        {!isFull ? (
+                          <>
+                            {/* Direct Quick Add Form */}
+                            <div>
+                              <span className="text-[10px] uppercase font-bold text-[#2D6A4F] tracking-wider block mb-1.5 flex items-center gap-1">
+                                <Plus className="w-3 h-3 text-[#C5A059]" />
+                                Adicionar Convidado nesta Mesa
+                              </span>
+                              <form onSubmit={(e) => handleQuickAddGuestToTable(e, table.id)} className="flex items-center gap-1.5">
+                                <input
+                                  type="text"
+                                  placeholder="Nome do convidado..."
+                                  value={currentInput.name || ''}
+                                  onChange={(e) => setQuickInputs({
+                                    ...quickInputs,
+                                    [table.id]: { ...currentInput, name: e.target.value }
+                                  })}
+                                  className="flex-1 px-3 py-2 rounded-xl bg-[#F7F9F6] border border-[#2D6A4F]/25 text-xs text-[#1A2820] focus:outline-hidden focus:border-[#2D6A4F]"
+                                />
+                                <input
+                                  type="number"
+                                  min="1"
+                                  max={Math.max(1, table.capacity - occupiedSeats)}
+                                  title="Lugares ocupados"
+                                  value={currentInput.seats || 1}
+                                  onChange={(e) => setQuickInputs({
+                                    ...quickInputs,
+                                    [table.id]: { ...currentInput, seats: e.target.value }
+                                  })}
+                                  className="w-12 px-1.5 py-2 rounded-xl bg-[#F7F9F6] border border-[#2D6A4F]/25 text-xs text-center text-[#1A2820] font-bold focus:outline-hidden"
+                                />
+                                <button
+                                  type="submit"
+                                  className="px-3.5 py-2 rounded-xl bg-[#1B4332] hover:bg-[#2D6A4F] text-white text-xs font-bold transition-colors shrink-0 flex items-center gap-1 shadow-xs"
+                                  title="Adicionar à mesa"
+                                >
+                                  <Plus className="w-3.5 h-3.5 text-[#C5A059]" />
+                                  <span>Adicionar</span>
+                                </button>
+                              </form>
+                            </div>
+
+                            {/* Dropdown for Unassigned RSVPs if any */}
+                            {unassignedGuests.length > 0 && (
+                              <div className="pt-1">
+                                <select
+                                  onChange={(e) => {
+                                    if (e.target.value) {
+                                      handleAssignGuestToTable(e.target.value, table.id);
+                                      e.target.value = '';
+                                    }
+                                  }}
+                                  defaultValue=""
+                                  className="w-full text-xs px-3 py-2 rounded-xl bg-amber-50/80 border border-amber-300 text-amber-900 font-semibold focus:outline-hidden cursor-pointer"
+                                >
+                                  <option value="" disabled>+ Ou puxar da lista RSVP pendente ({unassignedGuests.length})...</option>
+                                  {unassignedGuests.map(ug => (
+                                    <option key={ug.id} value={ug.id}>
+                                      {ug.name} ({ug.seats} lug.)
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
+                            )}
+                          </>
                         ) : (
-                          <p className="text-[10px] text-center text-gray-400 uppercase tracking-wider py-1">
-                            Todos os convidados já possuem mesa
-                          </p>
+                          <div className="py-2.5 px-3 rounded-2xl bg-rose-50 border border-rose-200 text-center">
+                            <span className="text-xs font-bold text-rose-700 uppercase tracking-wider">
+                              Mesa Totalmente Lotada ({table.capacity}/{table.capacity})
+                            </span>
+                          </div>
                         )}
                       </div>
                     </div>
