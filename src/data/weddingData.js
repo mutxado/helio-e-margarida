@@ -16,15 +16,15 @@ export const weddingData = {
       role: "A Noiva",
       bio: "Com a sua ternura, alegria radiante e elegância natural. A Margarida ilumina cada momento, vendo no Hélio o seu porto seguro e parceiro de todos os sonhos.",
       quote: "Onde o amor e a fé habitam, nenhuma tempestade abala a nossa união.",
-      image: `${base}images/photo_braids.jpg`
+      image: `${base}images/margarida_portrait.jpg`
     },
-    heroBg: `${base}images/photo_hug.jpg`,
+    heroBg: `${base}images/photo_emerald_couple.jpg`,
     hashtag: "#HelioEMargarida2026",
     tagline: "CELEBRAÇÃO DO NOSSO AMOR · MAPUTO",
     dateText: "Sábado, 28 de Novembro de 2026",
     targetDate: "2026-11-28T09:00:00",
     whatsappPhone: "258845585442",
-    flyerImage: `${base}images/photo_hug.jpg`
+    flyerImage: `${base}images/photo_emerald_couple.jpg`
   },
 
   story: [
@@ -44,7 +44,7 @@ export const weddingData = {
       year: "2026",
       title: "O SIM Para Sempre",
       description: "Com o coração transbordando de gratidão e alegria, decidimos dar o passo mais importante: celebrar a nossa união matrimonial!",
-      image: `${base}images/photo_braids.jpg`
+      image: `${base}images/photo_emerald_couple.jpg`
     }
   ],
 
@@ -84,23 +84,38 @@ export const weddingData = {
   gallery: [
     {
       id: 1,
-      title: "Hélio Nhamposse & Margarida Alfredo Guilima",
-      url: `${base}images/photo_hug.jpg`
+      title: "Hélio & Margarida — Traje de Celebração",
+      url: `${base}images/photo_emerald_couple.jpg`
     },
     {
       id: 2,
-      title: "Momentos de Ternura",
-      url: `${base}images/photo_braids.jpg`
+      title: "A Noiva: Margarida Alfredo Guilima",
+      url: `${base}images/margarida_portrait.jpg`
     },
     {
       id: 3,
-      title: "Sorrisos & Cumplicidade",
-      url: `${base}images/photo_blue_wall.jpg`
+      title: "O Noivo: Hélio Nhamposse",
+      url: `${base}images/helio_portrait.jpg`
     },
     {
       id: 4,
-      title: "Hélio Nhamposse",
-      url: `${base}images/helio_portrait.jpg`
+      title: "Sorrisos & Cumplicidade",
+      url: `${base}images/photo_couple_closeup.jpg`
+    },
+    {
+      id: 5,
+      title: "Abraço de Ternura",
+      url: `${base}images/photo_hug.jpg`
+    },
+    {
+      id: 6,
+      title: "Momentos Especiais",
+      url: `${base}images/photo_braids.jpg`
+    },
+    {
+      id: 7,
+      title: "O Nosso Começo",
+      url: `${base}images/photo_blue_wall.jpg`
     }
   ],
 

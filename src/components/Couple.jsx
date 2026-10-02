@@ -57,7 +57,7 @@ export function Couple() {
               <img
                 src={bride.image}
                 alt={bride.fullName}
-                className="w-full h-full object-cover object-[70%_top]"
+                className="w-full h-full object-cover object-top"
               />
             </div>
             
