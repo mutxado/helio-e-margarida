@@ -35,100 +35,134 @@ export function Hero() {
   }, []);
 
   return (
-    <section id="hero" className="relative min-h-screen flex items-center justify-center pt-36 sm:pt-44 pb-20 px-4 overflow-hidden">
+    <section id="hero" className="relative min-h-screen flex items-center justify-center pt-28 sm:pt-36 pb-16 px-4 sm:px-6 lg:px-8 bg-[#0B1510] overflow-hidden">
       
-      {/* Background with Optimized Framing so faces are visible */}
+      {/* Ambient Botanical & Light Background */}
       <div 
-        className="absolute inset-0 bg-cover bg-[center_18%] sm:bg-[center_22%] bg-no-repeat transition-all duration-1000 scale-105"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-20 blur-xl scale-110"
         style={{ backgroundImage: `url('${weddingData.couple.heroBg}')` }}
       />
-      {/* Dynamic Overlay Gradient ensuring high text contrast while keeping faces visible */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#0e1b15]/85 via-[#13251c]/70 to-[#0b1410]/95" />
+      <div className="absolute inset-0 bg-radial from-[#1A3828]/70 via-[#0E1A14]/90 to-[#080E0B]" />
 
       {/* Decorative Golden & Emerald Orbs */}
       <div className="absolute top-1/4 -left-20 w-96 h-96 bg-[#2D6A4F]/25 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-[#C5A059]/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-[#C5A059]/20 rounded-full blur-3xl pointer-events-none" />
 
-      {/* Hero Content Box */}
-      <div className="relative z-10 max-w-4xl mx-auto text-center text-white">
-        
-        {/* Floating Blessing Pill */}
-        <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-[#C5A059]/40 text-[#E8D7B0] text-xs uppercase tracking-widest font-semibold mb-8 shadow-md animate-fadeIn">
-          <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
-          <span>Com a Bênção de Deus & das Nossas Famílias</span>
-          <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
-        </div>
+      {/* Main Hero Container */}
+      <div className="relative z-10 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+          
+          {/* Text & Action Column */}
+          <div className="lg:col-span-7 text-center lg:text-left text-white order-2 lg:order-1">
+            
+            {/* Floating Blessing Pill */}
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-[#C5A059]/40 text-[#E8D7B0] text-[11px] sm:text-xs uppercase tracking-widest font-semibold mb-6 shadow-md">
+              <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+              <span>Com a Bênção de Deus & das Nossas Famílias</span>
+              <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+            </div>
 
-        {/* Grand Wedding Names */}
-        <h1 className="font-serif text-4xl sm:text-7xl md:text-8xl font-normal tracking-wide mb-3 leading-tight text-white drop-shadow-md">
-          Hélio <span className="font-script text-5xl sm:text-8xl md:text-9xl text-[#E8D7B0] px-2 block sm:inline font-normal">&</span> Margarida
-        </h1>
+            {/* Grand Names */}
+            <h1 className="font-serif text-4xl sm:text-6xl xl:text-7xl font-normal tracking-wide mb-3 leading-tight text-white drop-shadow-md">
+              Hélio <span className="font-script text-5xl sm:text-7xl xl:text-8xl text-[#E8D7B0] px-1 font-normal">&</span> Margarida
+            </h1>
 
-        <p className="text-xs sm:text-sm uppercase tracking-[0.25em] text-[#C5A059] font-semibold mb-8">
-          {weddingData.couple.tagline}
-        </p>
+            <p className="text-xs sm:text-sm uppercase tracking-[0.25em] text-[#C5A059] font-semibold mb-6">
+              {weddingData.couple.tagline}
+            </p>
 
-        {/* Date and Location Badges */}
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 text-xs sm:text-sm text-white/90 mb-10">
-          <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 shadow-xs">
-            <Calendar className="w-4 h-4 text-[#C5A059]" />
-            <span className="font-medium tracking-wide">{weddingData.couple.dateText}</span>
-          </div>
-
-          <div className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 shadow-xs">
-            <MapPin className="w-4 h-4 text-[#C5A059]" />
-            <span className="font-medium tracking-wide">Maputo, Moçambique</span>
-          </div>
-        </div>
-
-        {/* Circular Countdown Timer */}
-        <div className="mb-12 max-w-lg mx-auto">
-          <h3 className="text-xs uppercase tracking-widest text-white/70 font-semibold mb-5">
-            Contagem Decrescente para o Nosso Grande Dia
-          </h3>
-          <div className="grid grid-cols-4 gap-3 sm:gap-5">
-            {[
-              { label: 'Dias', value: timeLeft.days },
-              { label: 'Horas', value: timeLeft.hours },
-              { label: 'Minutos', value: timeLeft.minutes },
-              { label: 'Segundos', value: timeLeft.seconds },
-            ].map((item, index) => (
-              <div
-                key={index}
-                className="bg-white/10 backdrop-blur-md rounded-2xl p-3 sm:p-5 border border-white/15 shadow-lg flex flex-col items-center hover:border-[#C5A059]/60 transition-colors"
-              >
-                <span className="font-serif text-2xl sm:text-4xl font-bold text-[#E8D7B0]">
-                  {String(item.value).padStart(2, '0')}
-                </span>
-                <span className="text-[10px] sm:text-xs uppercase tracking-wider text-white/80 mt-1 font-medium">
-                  {item.label}
-                </span>
+            {/* Date and Location Badges */}
+            <div className="flex flex-wrap justify-center lg:justify-start items-center gap-3 text-xs sm:text-sm text-white/90 mb-8">
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/15 shadow-xs">
+                <Calendar className="w-4 h-4 text-[#C5A059]" />
+                <span className="font-medium tracking-wide">{weddingData.couple.dateText}</span>
               </div>
-            ))}
+
+              <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/15 shadow-xs">
+                <MapPin className="w-4 h-4 text-[#C5A059]" />
+                <span className="font-medium tracking-wide">Maputo, Moçambique</span>
+              </div>
+            </div>
+
+            {/* Circular Countdown Timer */}
+            <div className="mb-8 max-w-lg mx-auto lg:mx-0">
+              <h3 className="text-[11px] uppercase tracking-widest text-white/70 font-semibold mb-4">
+                Contagem Decrescente para o Nosso Grande Dia
+              </h3>
+              <div className="grid grid-cols-4 gap-2.5 sm:gap-4">
+                {[
+                  { label: 'Dias', value: timeLeft.days },
+                  { label: 'Horas', value: timeLeft.hours },
+                  { label: 'Minutos', value: timeLeft.minutes },
+                  { label: 'Segundos', value: timeLeft.seconds },
+                ].map((item, index) => (
+                  <div
+                    key={index}
+                    className="bg-white/10 backdrop-blur-md rounded-2xl p-2.5 sm:p-4 border border-white/15 shadow-lg flex flex-col items-center hover:border-[#C5A059]/60 transition-colors"
+                  >
+                    <span className="font-serif text-2xl sm:text-3xl font-bold text-[#E8D7B0]">
+                      {String(item.value).padStart(2, '0')}
+                    </span>
+                    <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-white/80 mt-0.5 font-medium">
+                      {item.label}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA Buttons */}
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5">
+              <a
+                href="#rsvp"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-gradient-to-r from-[#C5A059] to-[#9C7A35] hover:from-[#D4AF37] hover:to-[#B38F46] text-[#0E1A14] font-bold text-xs uppercase tracking-wider shadow-lg hover:shadow-xl transition-all text-center"
+              >
+                Confirmar Presença (RSVP)
+              </a>
+
+              <a
+                href="#schedule"
+                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white/10 hover:bg-white/20 text-white font-medium text-xs uppercase tracking-wider border border-white/25 backdrop-blur-md shadow-xs transition-all text-center"
+              >
+                Ver Programa & Locais
+              </a>
+            </div>
+
           </div>
-        </div>
 
-        {/* CTA Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a
-            href="#rsvp"
-            className="w-full sm:w-auto px-8 py-4 rounded-full bg-gradient-to-r from-[#C5A059] to-[#9C7A35] hover:from-[#D4AF37] hover:to-[#B38F46] text-[#15241C] font-semibold text-xs sm:text-sm uppercase tracking-wider shadow-lg hover:shadow-xl transition-all"
-          >
-            Confirmar Presença (RSVP)
-          </a>
+          {/* Arched Royal Portrait Frame (100% Uncut Heads & Outfits) */}
+          <div className="lg:col-span-5 flex justify-center order-1 lg:order-2">
+            <div className="relative group max-w-sm sm:max-w-md w-full">
+              {/* Golden Ambient Halo */}
+              <div className="absolute -inset-2 rounded-t-[180px] rounded-b-[40px] bg-gradient-to-b from-[#C5A059]/40 via-[#2D6A4F]/20 to-transparent blur-lg group-hover:from-[#C5A059]/60 transition-all duration-700" />
+              
+              {/* Main Photo Frame */}
+              <div className="relative rounded-t-[170px] rounded-b-[36px] overflow-hidden border-4 border-[#C5A059]/60 shadow-2xl bg-[#13251C] aspect-[3/4] sm:aspect-[2/3]">
+                <img
+                  src={weddingData.couple.heroBg}
+                  alt="Hélio Nhamposse & Margarida Alfredo Guilima"
+                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
+                />
 
-          <a
-            href="#schedule"
-            className="w-full sm:w-auto px-8 py-4 rounded-full bg-white/15 hover:bg-white/25 text-white font-medium text-xs sm:text-sm uppercase tracking-wider border border-white/30 backdrop-blur-md shadow-xs transition-all"
-          >
-            Ver Programa & Locais
-          </a>
+                {/* Bottom Frame Badge */}
+                <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#0B1510] via-[#0B1510]/80 to-transparent pt-10 pb-4 px-6 text-center">
+                  <span className="font-serif text-sm sm:text-base font-medium text-[#E8D7B0] tracking-wide block">
+                    Hélio Nhamposse & Margarida Guilima
+                  </span>
+                  <span className="text-[10px] text-[#C5A059] uppercase tracking-widest font-semibold">
+                    28 de Novembro de 2026
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
 
         {/* Down indicator */}
-        <div className="mt-12 flex justify-center">
+        <div className="mt-8 lg:mt-12 flex justify-center">
           <a href="#story" className="text-[#E8D7B0] opacity-80 hover:opacity-100 transition-opacity animate-bounce">
-            <ChevronDown className="w-7 h-7" />
+            <ChevronDown className="w-6 h-6" />
           </a>
         </div>
 
