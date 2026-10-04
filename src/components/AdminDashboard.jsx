@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Lock, Users, CheckCircle, XCircle, Search, Download, Trash2, LogOut, 
+  Lock, Users, User, CheckCircle, XCircle, Search, Download, Trash2, LogOut, 
   ArrowLeft, RefreshCw, Sparkles, LayoutGrid, Plus, Edit3, ArrowRightLeft, 
   Printer, UserPlus, UserMinus, Check, AlertCircle, X, ChevronRight, Hash,
   UserCheck, CornerDownRight
@@ -899,36 +899,54 @@ export function AdminDashboard({ onBack }) {
                   </span>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {unassignedGuests.map((guest) => (
                     <div
                       key={guest.id}
-                      className="bg-white p-3.5 rounded-2xl border border-amber-200 shadow-xs flex items-center justify-between gap-2 hover:border-amber-400 transition-colors"
+                      className="bg-white p-4 sm:p-5 rounded-2xl border border-amber-200/80 shadow-xs flex flex-col justify-between gap-3.5 hover:border-amber-400 hover:shadow-sm transition-all"
                     >
-                      <div className="overflow-hidden">
-                        <span className="text-xs font-bold text-[#1A2820] truncate block">
-                          {guest.name}
-                        </span>
-                        <span className="text-[10px] text-gray-500 block">
-                          {guest.seats} lugar{guest.seats > 1 ? 'es' : ''} {guest.source === 'manual' && '• Manual'}
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="w-9 h-9 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center shrink-0">
+                            <User className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="text-sm font-bold text-[#1A2820] leading-snug break-words">
+                              {guest.name}
+                            </h4>
+                            <span className="text-[11px] text-gray-500 font-medium block mt-0.5">
+                              {guest.seats} {guest.seats > 1 ? 'lugares' : 'lugar'} {guest.source === 'manual' ? '• Manual' : '• RSVP Online'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <span className="px-2.5 py-1 rounded-lg bg-amber-100/90 text-amber-900 text-[10px] font-bold uppercase tracking-wider shrink-0 whitespace-nowrap">
+                          {guest.seats} {guest.seats > 1 ? 'Lugares' : 'Lugar'}
                         </span>
                       </div>
 
-                      <select
-                        onChange={(e) => handleAssignGuestToTable(guest.id, e.target.value)}
-                        defaultValue=""
-                        className="text-xs px-2.5 py-1.5 rounded-xl bg-amber-100/70 border border-amber-300 font-semibold text-amber-900 focus:outline-hidden cursor-pointer"
-                      >
-                        <option value="" disabled>Atribuir Mesa...</option>
-                        {tables.map(t => {
-                          const { occupiedSeats } = getTableOccupancy(t.id);
-                          return (
-                            <option key={t.id} value={t.id} disabled={occupiedSeats >= t.capacity}>
-                              {t.name} ({occupiedSeats}/{t.capacity})
-                            </option>
-                          );
-                        })}
-                      </select>
+                      <div className="pt-2 border-t border-amber-100">
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-gray-500 mb-1.5">
+                          Alocar para a Mesa:
+                        </label>
+                        <select
+                          onChange={(e) => handleAssignGuestToTable(guest.id, e.target.value)}
+                          defaultValue=""
+                          className="w-full text-xs px-3 py-2.5 rounded-xl bg-amber-50/70 border border-amber-300 font-semibold text-amber-950 focus:outline-hidden focus:ring-2 focus:ring-amber-400 cursor-pointer"
+                        >
+                          <option value="" disabled>Selecionar Mesa do Casamento...</option>
+                          {tables.map(t => {
+                            const { occupiedSeats } = getTableOccupancy(t.id);
+                            const remaining = t.capacity - occupiedSeats;
+                            const hasSpace = remaining >= guest.seats;
+                            return (
+                              <option key={t.id} value={t.id} disabled={occupiedSeats >= t.capacity}>
+                                {t.name} ({occupiedSeats}/{t.capacity} lugares) {!hasSpace ? '• [Poucas vagas]' : ''}
+                              </option>
+                            );
+                          })}
+                        </select>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1034,12 +1052,12 @@ export function AdminDashboard({ onBack }) {
                               {guests.map((g) => (
                                 <div
                                   key={g.id}
-                                  className="p-3 rounded-2xl bg-[#F7F9F6] border border-[#2D6A4F]/15 flex items-center justify-between gap-2 text-xs hover:border-[#2D6A4F]/40 transition-colors"
+                                  className="p-3 rounded-2xl bg-[#F7F9F6] border border-[#2D6A4F]/15 flex items-center justify-between gap-2.5 text-xs hover:border-[#2D6A4F]/40 transition-colors"
                                 >
-                                  <div className="overflow-hidden">
-                                    <span className="font-bold text-[#1A2820] truncate block">{g.name}</span>
-                                    <span className="text-[10px] text-gray-500 block">
-                                      {g.seats} lugar{g.seats > 1 ? 'es' : ''} {g.source === 'manual' && '• Manual'}
+                                  <div className="min-w-0 flex-1">
+                                    <span className="font-bold text-[#1A2820] block leading-snug break-words">{g.name}</span>
+                                    <span className="text-[10px] text-gray-500 font-medium block mt-0.5">
+                                      {g.seats} {g.seats > 1 ? 'lugares' : 'lugar'} {g.source === 'manual' ? '• Manual' : '• RSVP'}
                                     </span>
                                   </div>
 
