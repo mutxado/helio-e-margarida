@@ -13,34 +13,34 @@ import {
 } from 'firebase/firestore';
 
 // =========================================================================
-// CONFIGURAÇÃO OFICIAL DO FIREBASE (Hélio & Margarida)
+// CONFIGURAÇÃO OFICIAL DO FIREBASE (Hélio & Margarida - Projeto Próprio)
 // =========================================================================
 export const firebaseConfig = {
-  apiKey: "AIzaSyBCUfbXDZss5-9vsHz-y7mh-PLfjq-bd2g",
-  authDomain: "alberto-e-liesa.firebaseapp.com",
-  projectId: "alberto-e-liesa",
-  storageBucket: "alberto-e-liesa.firebasestorage.app",
-  messagingSenderId: "943796554139",
-  appId: "1:943796554139:web:2dc1ce59f701b20861f93e",
-  measurementId: "G-CCML3HQB9E"
+  apiKey: "AIzaSyArmHi35diuegNcCZbv7V0-LAsC1xQcefA",
+  authDomain: "helio-e-margarida.firebaseapp.com",
+  projectId: "helio-e-margarida",
+  storageBucket: "helio-e-margarida.firebasestorage.app",
+  messagingSenderId: "341458962991",
+  appId: "1:341458962991:web:d5d3386e2e242b1901d4da",
+  measurementId: "G-BBED9FZ772"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const isFirebaseReady = true;
 
-console.log("🔥 Firebase Firestore inicializado para Hélio & Margarida!");
+console.log("🔥 Firebase Firestore conectado com sucesso para Hélio & Margarida!");
 
 export { db, isFirebaseReady };
 
 // =========================================================================
-// 1. CONFIRMAÇÕES DE PRESENÇA (helio_rsvps)
+// 1. CONFIRMAÇÕES DE PRESENÇA (rsvps)
 // =========================================================================
 
 export async function saveRsvpToFirestore(rsvpData) {
   if (!db) return null;
   try {
-    const docRef = await addDoc(collection(db, 'helio_rsvps'), {
+    const docRef = await addDoc(collection(db, 'rsvps'), {
       ...rsvpData,
       createdAt: serverTimestamp(),
       createdDate: new Date().toLocaleString('pt-MZ')
@@ -60,7 +60,7 @@ export function subscribeToRsvps(callback) {
   }
 
   try {
-    const q = query(collection(db, 'helio_rsvps'), orderBy('createdAt', 'desc'));
+    const q = query(collection(db, 'rsvps'), orderBy('createdAt', 'desc'));
     return onSnapshot(q, (snapshot) => {
       const rsvps = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -69,7 +69,12 @@ export function subscribeToRsvps(callback) {
       callback(rsvps);
     }, (err) => {
       console.error("❌ Erro na sincronização de RSVPs do Firebase:", err);
-      callback([]);
+      // fallback to basic query without orderBy if index not ready
+      const fallbackQ = collection(db, 'rsvps');
+      return onSnapshot(fallbackQ, (snap) => {
+        const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        callback(list);
+      }, () => callback([]));
     });
   } catch (err) {
     console.error("❌ Erro ao inicializar subscrição de RSVPs:", err);
@@ -81,7 +86,7 @@ export function subscribeToRsvps(callback) {
 export async function deleteRsvpFromFirestore(id) {
   if (!db || !id) return;
   try {
-    await deleteDoc(doc(db, 'helio_rsvps', id));
+    await deleteDoc(doc(db, 'rsvps', id));
     console.log("✅ RSVP eliminado do Firebase:", id);
   } catch (err) {
     console.error("❌ Erro ao eliminar RSVP no Firebase:", err);
@@ -90,13 +95,13 @@ export async function deleteRsvpFromFirestore(id) {
 }
 
 // =========================================================================
-// 2. MURAL DE MENSAGENS (helio_messages)
+// 2. MURAL DE MENSAGENS (messages)
 // =========================================================================
 
 export async function saveMessageToFirestore(messageData) {
   if (!db) return null;
   try {
-    const docRef = await addDoc(collection(db, 'helio_messages'), {
+    const docRef = await addDoc(collection(db, 'messages'), {
       ...messageData,
       createdAt: serverTimestamp(),
       createdDate: new Date().toLocaleString('pt-MZ')
@@ -116,7 +121,7 @@ export function subscribeToMessages(callback) {
   }
 
   try {
-    const q = query(collection(db, 'helio_messages'), orderBy('createdAt', 'desc'));
+    const q = query(collection(db, 'messages'), orderBy('createdAt', 'desc'));
     return onSnapshot(q, (snapshot) => {
       const messages = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -125,7 +130,11 @@ export function subscribeToMessages(callback) {
       callback(messages);
     }, (err) => {
       console.error("❌ Erro na sincronização de Mensagens do Firebase:", err);
-      callback([]);
+      const fallbackQ = collection(db, 'messages');
+      return onSnapshot(fallbackQ, (snap) => {
+        const list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        callback(list);
+      }, () => callback([]));
     });
   } catch (err) {
     console.error("❌ Erro ao subscrever mensagens:", err);
@@ -135,13 +144,13 @@ export function subscribeToMessages(callback) {
 }
 
 // =========================================================================
-// 3. GESTÃO DE MESAS E ALOCAÇÕES (helio_settings)
+// 3. GESTÃO DE MESAS E ALOCAÇÕES (settings)
 // =========================================================================
 
 export async function syncTablesToFirestore(tablesArray) {
   if (!db) return;
   try {
-    await setDoc(doc(db, 'helio_settings', 'tables_data'), {
+    await setDoc(doc(db, 'settings', 'tables_data'), {
       tables: tablesArray,
       updatedAt: serverTimestamp()
     });
@@ -156,7 +165,7 @@ export function subscribeToTables(callback) {
     return () => {};
   }
 
-  return onSnapshot(doc(db, 'helio_settings', 'tables_data'), (docSnap) => {
+  return onSnapshot(doc(db, 'settings', 'tables_data'), (docSnap) => {
     if (docSnap.exists()) {
       callback(docSnap.data().tables || []);
     } else {
@@ -171,7 +180,7 @@ export function subscribeToTables(callback) {
 export async function syncSeatingAssignmentsToFirestore(assignmentsObj) {
   if (!db) return;
   try {
-    await setDoc(doc(db, 'helio_settings', 'seating_assignments'), {
+    await setDoc(doc(db, 'settings', 'seating_assignments'), {
       assignments: assignmentsObj,
       updatedAt: serverTimestamp()
     });
@@ -186,7 +195,7 @@ export function subscribeToSeatingAssignments(callback) {
     return () => {};
   }
 
-  return onSnapshot(doc(db, 'helio_settings', 'seating_assignments'), (docSnap) => {
+  return onSnapshot(doc(db, 'settings', 'seating_assignments'), (docSnap) => {
     if (docSnap.exists()) {
       callback(docSnap.data().assignments || {});
     } else {
@@ -201,7 +210,7 @@ export function subscribeToSeatingAssignments(callback) {
 export async function syncManualGuestsToFirestore(manualGuestsArray) {
   if (!db) return;
   try {
-    await setDoc(doc(db, 'helio_settings', 'manual_guests'), {
+    await setDoc(doc(db, 'settings', 'manual_guests'), {
       guests: manualGuestsArray,
       updatedAt: serverTimestamp()
     });
@@ -216,7 +225,7 @@ export function subscribeToManualGuests(callback) {
     return () => {};
   }
 
-  return onSnapshot(doc(db, 'helio_settings', 'manual_guests'), (docSnap) => {
+  return onSnapshot(doc(db, 'settings', 'manual_guests'), (docSnap) => {
     if (docSnap.exists()) {
       callback(docSnap.data().guests || []);
     } else {
