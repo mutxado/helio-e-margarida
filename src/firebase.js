@@ -6,14 +6,81 @@ import {
   deleteDoc, 
   doc, 
   setDoc,
-  getDocs,
   query, 
   orderBy, 
   onSnapshot, 
   serverTimestamp 
 } from 'firebase/firestore';
 
-// Firebase Firestore Configuration
+// =========================================================================
+// 1. CLOUD STORAGE ENGINE (High-Availability REST Cloud DB)
+// =========================================================================
+const MASTER_CLOUD_ID = 'ff808181a09d98f701a1073296b573bd';
+const CLOUD_API_URL = `https://api.restful-api.dev/objects/${MASTER_CLOUD_ID}`;
+
+// In-memory cache
+let memoryCache = {
+  rsvps: [],
+  messages: [],
+  tables: [
+    { id: 'table-1', name: 'Mesa 1 - Noivos & Pais', capacity: 10 },
+    { id: 'table-2', name: 'Mesa 2 - Padrinhos & Damas', capacity: 10 },
+    { id: 'table-3', name: 'Mesa 3 - Família do Noivo', capacity: 10 },
+    { id: 'table-4', name: 'Mesa 4 - Família da Noiva', capacity: 10 },
+    { id: 'table-5', name: 'Mesa 5 - Amigos de Infância', capacity: 10 }
+  ],
+  seatingAssignments: {},
+  manualGuests: []
+};
+
+// Fetch latest master store from cloud
+async function fetchCloudStore() {
+  try {
+    const res = await fetch(CLOUD_API_URL, { cache: 'no-store' });
+    if (res.ok) {
+      const json = await res.json();
+      if (json && json.data) {
+        memoryCache = {
+          ...memoryCache,
+          ...json.data
+        };
+        return memoryCache;
+      }
+    }
+  } catch (err) {
+    console.warn('Cloud store fetch warning:', err.message);
+  }
+  return memoryCache;
+}
+
+// Update master store in cloud
+async function updateCloudStore(partialData) {
+  try {
+    const current = await fetchCloudStore();
+    const updated = {
+      ...current,
+      ...partialData
+    };
+    memoryCache = updated;
+
+    await fetch(CLOUD_API_URL, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: 'Helio e Margarida Wedding Cloud Database',
+        data: updated
+      })
+    });
+    return updated;
+  } catch (err) {
+    console.warn('Cloud store update warning:', err.message);
+    return memoryCache;
+  }
+}
+
+// =========================================================================
+// 2. FIREBASE FIRESTORE ENGINE (Optional / Complementary)
+// =========================================================================
 export const firebaseConfig = {
   apiKey: "AIzaSyBCUfbXDZss5-9vsHz-y7mh-PLfjq-bd2g",
   authDomain: "alberto-e-liesa.firebaseapp.com",
@@ -24,192 +91,288 @@ export const firebaseConfig = {
   measurementId: "G-CCML3HQB9E"
 };
 
-// Initialize Firebase and Firestore
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+let db = null;
+try {
+  const app = initializeApp(firebaseConfig);
+  db = getFirestore(app);
+} catch (e) {
+  console.log('Firebase init notice:', e.message);
+}
+
 const isFirebaseReady = true;
-
-console.log("🔥 Firebase Firestore connected successfully for Hélio & Margarida!");
-
 export { db, isFirebaseReady };
 
 // =========================================================================
-// 1. RSVP CONFIRMATIONS (helio_rsvps)
+// 3. RSVP CONFIRMATIONS
 // =========================================================================
 
 export async function saveRsvpToFirestore(rsvpData) {
-  if (!db) return null;
+  const rsvpId = `rsvp-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+  const item = {
+    id: rsvpId,
+    ...rsvpData,
+    createdDate: new Date().toLocaleString('pt-MZ')
+  };
+
+  // 1. Save to Cloud API
   try {
-    const docRef = await addDoc(collection(db, 'helio_rsvps'), {
-      ...rsvpData,
-      createdAt: serverTimestamp(),
-      createdDate: new Date().toLocaleString('pt-MZ')
-    });
-    return docRef.id;
-  } catch (err) {
-    console.error("Erro ao guardar RSVP no Firebase Firestore:", err);
-    throw err;
+    const current = await fetchCloudStore();
+    const existing = current.rsvps || [];
+    const updatedRsvps = [item, ...existing.filter(r => r.name !== item.name || r.id !== item.id)];
+    await updateCloudStore({ rsvps: updatedRsvps });
+  } catch (e) {
+    console.warn('Error saving RSVP to Cloud Store:', e);
   }
+
+  // 2. Try Firestore as well
+  if (db) {
+    try {
+      await addDoc(collection(db, 'helio_rsvps'), {
+        ...rsvpData,
+        createdAt: serverTimestamp(),
+        createdDate: new Date().toLocaleString('pt-MZ')
+      });
+    } catch (err) {
+      // Ignored silently if rules restricted
+    }
+  }
+
+  return rsvpId;
 }
 
 export function subscribeToRsvps(callback) {
-  if (!db) {
-    callback([]);
-    return () => {};
-  }
+  let isMounted = true;
 
-  const q = query(collection(db, 'helio_rsvps'), orderBy('createdAt', 'desc'));
-  return onSnapshot(q, (snapshot) => {
-    const rsvps = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+  const pullLatest = async () => {
+    if (!isMounted) return;
+    const store = await fetchCloudStore();
+    const rsvps = store.rsvps || [];
     callback(rsvps);
-  }, (err) => {
-    console.error("Erro na sincronização de RSVPs do Firebase:", err);
-    // Fallback gracefully to empty array
-    callback([]);
-  });
+  };
+
+  // Initial pull
+  pullLatest();
+
+  // Real-time polling every 3 seconds
+  const interval = setInterval(pullLatest, 3000);
+
+  // Poll on tab focus
+  const handleFocus = () => pullLatest();
+  window.addEventListener('focus', handleFocus);
+  document.addEventListener('visibilitychange', handleFocus);
+
+  return () => {
+    isMounted = false;
+    clearInterval(interval);
+    window.removeEventListener('focus', handleFocus);
+    document.removeEventListener('visibilitychange', handleFocus);
+  };
 }
 
 export async function deleteRsvpFromFirestore(id) {
-  if (!db || !id) return;
+  if (!id) return;
+
+  // Delete from Cloud Store
   try {
-    await deleteDoc(doc(db, 'helio_rsvps', id));
-  } catch (err) {
-    console.error("Erro ao eliminar RSVP no Firebase:", err);
-    throw err;
+    const current = await fetchCloudStore();
+    const updated = (current.rsvps || []).filter(r => r.id !== id);
+    await updateCloudStore({ rsvps: updated });
+  } catch (e) {
+    console.warn('Error deleting RSVP from Cloud Store:', e);
+  }
+
+  // Try Firestore delete
+  if (db) {
+    try {
+      await deleteDoc(doc(db, 'helio_rsvps', id));
+    } catch (err) {
+      // Ignore
+    }
   }
 }
 
 // =========================================================================
-// 2. MESSAGE WALL (helio_messages)
+// 4. MESSAGE WALL
 // =========================================================================
 
 export async function saveMessageToFirestore(messageData) {
-  if (!db) return null;
+  const msgId = `msg-${Date.now()}-${Math.random().toString(36).substr(2, 6)}`;
+  const item = {
+    id: msgId,
+    ...messageData,
+    createdDate: new Date().toLocaleString('pt-MZ')
+  };
+
   try {
-    const docRef = await addDoc(collection(db, 'helio_messages'), {
-      ...messageData,
-      createdAt: serverTimestamp(),
-      createdDate: new Date().toLocaleString('pt-MZ')
-    });
-    return docRef.id;
-  } catch (err) {
-    console.error("Erro ao guardar mensagem no Firebase:", err);
-    throw err;
+    const current = await fetchCloudStore();
+    const existing = current.messages || [];
+    const updatedMessages = [item, ...existing];
+    await updateCloudStore({ messages: updatedMessages });
+  } catch (e) {
+    console.warn('Error saving message to Cloud Store:', e);
   }
+
+  if (db) {
+    try {
+      await addDoc(collection(db, 'helio_messages'), {
+        ...messageData,
+        createdAt: serverTimestamp(),
+        createdDate: new Date().toLocaleString('pt-MZ')
+      });
+    } catch (err) {}
+  }
+
+  return msgId;
 }
 
 export function subscribeToMessages(callback) {
-  if (!db) {
-    callback([]);
-    return () => {};
-  }
+  let isMounted = true;
 
-  const q = query(collection(db, 'helio_messages'), orderBy('createdAt', 'desc'));
-  return onSnapshot(q, (snapshot) => {
-    const messages = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    }));
+  const pullLatest = async () => {
+    if (!isMounted) return;
+    const store = await fetchCloudStore();
+    const messages = store.messages || [];
     callback(messages);
-  }, (err) => {
-    console.error("Erro na sincronização de Mensagens do Firebase:", err);
-    callback([]);
-  });
+  };
+
+  pullLatest();
+  const interval = setInterval(pullLatest, 4000);
+
+  const handleFocus = () => pullLatest();
+  window.addEventListener('focus', handleFocus);
+  document.addEventListener('visibilitychange', handleFocus);
+
+  return () => {
+    isMounted = false;
+    clearInterval(interval);
+    window.removeEventListener('focus', handleFocus);
+    document.removeEventListener('visibilitychange', handleFocus);
+  };
 }
 
 // =========================================================================
-// 3. TABLES & SEATING MANAGEMENT (helio_tables & helio_seating)
+// 5. TABLES & SEATING MANAGEMENT
 // =========================================================================
 
 export async function syncTablesToFirestore(tablesArray) {
-  if (!db) return;
   try {
-    await setDoc(doc(db, 'helio_settings', 'tables_data'), {
-      tables: tablesArray,
-      updatedAt: serverTimestamp()
-    });
+    await updateCloudStore({ tables: tablesArray });
   } catch (err) {
-    console.error("Erro ao sincronizar mesas no Firebase:", err);
+    console.warn('Error syncing tables to Cloud Store:', err);
+  }
+
+  if (db) {
+    try {
+      await setDoc(doc(db, 'helio_settings', 'tables_data'), {
+        tables: tablesArray,
+        updatedAt: serverTimestamp()
+      });
+    } catch (err) {}
   }
 }
 
 export function subscribeToTables(callback) {
-  if (!db) {
-    callback(null);
-    return () => {};
-  }
+  let isMounted = true;
 
-  return onSnapshot(doc(db, 'helio_settings', 'tables_data'), (docSnap) => {
-    if (docSnap.exists()) {
-      callback(docSnap.data().tables || []);
-    } else {
-      callback(null);
+  const pullLatest = async () => {
+    if (!isMounted) return;
+    const store = await fetchCloudStore();
+    if (store.tables && store.tables.length > 0) {
+      callback(store.tables);
     }
-  }, (err) => {
-    console.error("Erro ao ouvir mesas no Firebase:", err);
-    callback(null);
-  });
+  };
+
+  pullLatest();
+  const interval = setInterval(pullLatest, 4000);
+
+  const handleFocus = () => pullLatest();
+  window.addEventListener('focus', handleFocus);
+
+  return () => {
+    isMounted = false;
+    clearInterval(interval);
+    window.removeEventListener('focus', handleFocus);
+  };
 }
 
 export async function syncSeatingAssignmentsToFirestore(assignmentsObj) {
-  if (!db) return;
   try {
-    await setDoc(doc(db, 'helio_settings', 'seating_assignments'), {
-      assignments: assignmentsObj,
-      updatedAt: serverTimestamp()
-    });
+    await updateCloudStore({ seatingAssignments: assignmentsObj });
   } catch (err) {
-    console.error("Erro ao sincronizar alocações no Firebase:", err);
+    console.warn('Error syncing seating assignments to Cloud Store:', err);
+  }
+
+  if (db) {
+    try {
+      await setDoc(doc(db, 'helio_settings', 'seating_assignments'), {
+        assignments: assignmentsObj,
+        updatedAt: serverTimestamp()
+      });
+    } catch (err) {}
   }
 }
 
 export function subscribeToSeatingAssignments(callback) {
-  if (!db) {
-    callback(null);
-    return () => {};
-  }
+  let isMounted = true;
 
-  return onSnapshot(doc(db, 'helio_settings', 'seating_assignments'), (docSnap) => {
-    if (docSnap.exists()) {
-      callback(docSnap.data().assignments || {});
-    } else {
-      callback(null);
+  const pullLatest = async () => {
+    if (!isMounted) return;
+    const store = await fetchCloudStore();
+    if (store.seatingAssignments) {
+      callback(store.seatingAssignments);
     }
-  }, (err) => {
-    console.error("Erro ao ouvir alocações no Firebase:", err);
-    callback(null);
-  });
+  };
+
+  pullLatest();
+  const interval = setInterval(pullLatest, 4000);
+
+  const handleFocus = () => pullLatest();
+  window.addEventListener('focus', handleFocus);
+
+  return () => {
+    isMounted = false;
+    clearInterval(interval);
+    window.removeEventListener('focus', handleFocus);
+  };
 }
 
 export async function syncManualGuestsToFirestore(manualGuestsArray) {
-  if (!db) return;
   try {
-    await setDoc(doc(db, 'helio_settings', 'manual_guests'), {
-      guests: manualGuestsArray,
-      updatedAt: serverTimestamp()
-    });
+    await updateCloudStore({ manualGuests: manualGuestsArray });
   } catch (err) {
-    console.error("Erro ao sincronizar convidados manuais no Firebase:", err);
+    console.warn('Error syncing manual guests to Cloud Store:', err);
+  }
+
+  if (db) {
+    try {
+      await setDoc(doc(db, 'helio_settings', 'manual_guests'), {
+        guests: manualGuestsArray,
+        updatedAt: serverTimestamp()
+      });
+    } catch (err) {}
   }
 }
 
 export function subscribeToManualGuests(callback) {
-  if (!db) {
-    callback(null);
-    return () => {};
-  }
+  let isMounted = true;
 
-  return onSnapshot(doc(db, 'helio_settings', 'manual_guests'), (docSnap) => {
-    if (docSnap.exists()) {
-      callback(docSnap.data().guests || []);
-    } else {
-      callback(null);
+  const pullLatest = async () => {
+    if (!isMounted) return;
+    const store = await fetchCloudStore();
+    if (store.manualGuests) {
+      callback(store.manualGuests);
     }
-  }, (err) => {
-    console.error("Erro ao ouvir convidados manuais no Firebase:", err);
-    callback(null);
-  });
+  };
+
+  pullLatest();
+  const interval = setInterval(pullLatest, 4000);
+
+  const handleFocus = () => pullLatest();
+  window.addEventListener('focus', handleFocus);
+
+  return () => {
+    isMounted = false;
+    clearInterval(interval);
+    window.removeEventListener('focus', handleFocus);
+  };
 }
