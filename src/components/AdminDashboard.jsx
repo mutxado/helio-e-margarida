@@ -6,6 +6,16 @@ import {
   UserCheck, CornerDownRight
 } from 'lucide-react';
 import { weddingData } from '../data/weddingData';
+import { 
+  subscribeToRsvps, 
+  deleteRsvpFromFirestore, 
+  subscribeToTables, 
+  syncTablesToFirestore, 
+  subscribeToSeatingAssignments, 
+  syncSeatingAssignmentsToFirestore, 
+  subscribeToManualGuests, 
+  syncManualGuestsToFirestore 
+} from '../firebase';
 
 export function AdminDashboard({ onBack }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -46,14 +56,13 @@ export function AdminDashboard({ onBack }) {
 
   const ADMIN_PASSWORD = 'helio2026';
 
-  // Load all data
+  // Load all local cached data
   const loadData = () => {
     try {
       const storedRsvp = JSON.parse(localStorage.getItem('helio_margarida_rsvp_confirmations') || '[]');
       setConfirmations(storedRsvp);
 
       const storedTables = JSON.parse(localStorage.getItem('helio_margarida_tables') || '[]');
-      // Default initial tables if none exist
       if (storedTables.length === 0) {
         const defaultTables = [
           { id: 'table-1', name: 'Mesa 1 - Noivos & Pais', capacity: 10 },
@@ -64,6 +73,7 @@ export function AdminDashboard({ onBack }) {
         ];
         setTables(defaultTables);
         localStorage.setItem('helio_margarida_tables', JSON.stringify(defaultTables));
+        syncTablesToFirestore(defaultTables);
       } else {
         setTables(storedTables);
       }
@@ -79,9 +89,54 @@ export function AdminDashboard({ onBack }) {
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      loadData();
-    }
+    if (!isAuthenticated) return;
+
+    // Initial cache load
+    loadData();
+
+    // Live Firebase Cloud Sync Listeners
+    const unsubRsvp = subscribeToRsvps((cloudRsvps) => {
+      if (cloudRsvps) {
+        setConfirmations(cloudRsvps);
+        try {
+          localStorage.setItem('helio_margarida_rsvp_confirmations', JSON.stringify(cloudRsvps));
+        } catch (e) {}
+      }
+    });
+
+    const unsubTables = subscribeToTables((cloudTables) => {
+      if (cloudTables && cloudTables.length > 0) {
+        setTables(cloudTables);
+        try {
+          localStorage.setItem('helio_margarida_tables', JSON.stringify(cloudTables));
+        } catch (e) {}
+      }
+    });
+
+    const unsubSeating = subscribeToSeatingAssignments((cloudSeating) => {
+      if (cloudSeating) {
+        setSeatingAssignments(cloudSeating);
+        try {
+          localStorage.setItem('helio_margarida_seating_assignments', JSON.stringify(cloudSeating));
+        } catch (e) {}
+      }
+    });
+
+    const unsubManual = subscribeToManualGuests((cloudManual) => {
+      if (cloudManual) {
+        setManualGuests(cloudManual);
+        try {
+          localStorage.setItem('helio_margarida_manual_guests', JSON.stringify(cloudManual));
+        } catch (e) {}
+      }
+    });
+
+    return () => {
+      unsubRsvp();
+      unsubTables();
+      unsubSeating();
+      unsubManual();
+    };
   }, [isAuthenticated]);
 
   const handleLogin = (e) => {
@@ -95,7 +150,7 @@ export function AdminDashboard({ onBack }) {
   };
 
   // RSVP Management
-  const handleDeleteConfirmation = (idToDelete) => {
+  const handleDeleteConfirmation = async (idToDelete) => {
     if (window.confirm('Tem a certeza que deseja remover esta confirmação?')) {
       const updated = confirmations.filter((item, idx) => (item.id || idx) !== idToDelete);
       setConfirmations(updated);
@@ -106,6 +161,14 @@ export function AdminDashboard({ onBack }) {
       delete newAssignments[idToDelete];
       setSeatingAssignments(newAssignments);
       localStorage.setItem('helio_margarida_seating_assignments', JSON.stringify(newAssignments));
+
+      // Delete from Firebase
+      try {
+        await deleteRsvpFromFirestore(idToDelete);
+        await syncSeatingAssignmentsToFirestore(newAssignments);
+      } catch (e) {
+        console.log('Firebase delete error:', e);
+      }
     }
   };
 
@@ -133,7 +196,7 @@ export function AdminDashboard({ onBack }) {
   };
 
   // Table Management Actions
-  const handleAddTable = (e) => {
+  const handleAddTable = async (e) => {
     e.preventDefault();
     if (!newTableName.trim()) return;
 
@@ -146,12 +209,13 @@ export function AdminDashboard({ onBack }) {
     const updated = [...tables, newTable];
     setTables(updated);
     localStorage.setItem('helio_margarida_tables', JSON.stringify(updated));
+    syncTablesToFirestore(updated);
     setNewTableName('');
     setNewTableCapacity(10);
     setIsAddTableOpen(false);
   };
 
-  const handleCreateBatchTables = (e) => {
+  const handleCreateBatchTables = async (e) => {
     e.preventDefault();
     const count = parseInt(batchCount, 10) || 1;
     const cap = parseInt(batchCapacity, 10) || 10;
@@ -169,10 +233,11 @@ export function AdminDashboard({ onBack }) {
     const updated = [...tables, ...created];
     setTables(updated);
     localStorage.setItem('helio_margarida_tables', JSON.stringify(updated));
+    syncTablesToFirestore(updated);
     setIsBatchOpen(false);
   };
 
-  const handleUpdateTable = (e) => {
+  const handleUpdateTable = async (e) => {
     e.preventDefault();
     if (!editingTable || !editingTable.name.trim()) return;
 
@@ -184,10 +249,11 @@ export function AdminDashboard({ onBack }) {
 
     setTables(updated);
     localStorage.setItem('helio_margarida_tables', JSON.stringify(updated));
+    syncTablesToFirestore(updated);
     setEditingTable(null);
   };
 
-  const handleDeleteTable = (tableId) => {
+  const handleDeleteTable = async (tableId) => {
     const assignedGuestsCount = Object.values(seatingAssignments).filter(tId => tId === tableId).length;
     if (assignedGuestsCount > 0) {
       if (!window.confirm(`Esta mesa tem ${assignedGuestsCount} convidados atribuídos. Se a apagar, os convidados voltarão a ficar sem mesa. Continuar?`)) {
@@ -200,6 +266,7 @@ export function AdminDashboard({ onBack }) {
     const updatedTables = tables.filter(t => t.id !== tableId);
     setTables(updatedTables);
     localStorage.setItem('helio_margarida_tables', JSON.stringify(updatedTables));
+    syncTablesToFirestore(updatedTables);
 
     // Clear assignments for this table
     const updatedAssignments = { ...seatingAssignments };
@@ -210,9 +277,10 @@ export function AdminDashboard({ onBack }) {
     });
     setSeatingAssignments(updatedAssignments);
     localStorage.setItem('helio_margarida_seating_assignments', JSON.stringify(updatedAssignments));
+    syncSeatingAssignmentsToFirestore(updatedAssignments);
   };
 
-  const handleClearTable = (tableId) => {
+  const handleClearTable = async (tableId) => {
     const assignedGuests = allEligibleGuests.filter(g => seatingAssignments[g.id] === tableId);
     if (assignedGuests.length === 0) return;
 
@@ -223,6 +291,7 @@ export function AdminDashboard({ onBack }) {
       });
       setSeatingAssignments(updatedAssignments);
       localStorage.setItem('helio_margarida_seating_assignments', JSON.stringify(updatedAssignments));
+      syncSeatingAssignmentsToFirestore(updatedAssignments);
     }
   };
 
@@ -249,7 +318,7 @@ export function AdminDashboard({ onBack }) {
   ];
 
   // Quick Direct Add Guest to a Specific Table
-  const handleQuickAddGuestToTable = (e, tableId) => {
+  const handleQuickAddGuestToTable = async (e, tableId) => {
     e.preventDefault();
     const inputState = quickInputs[tableId] || { name: '', seats: 1 };
     const name = (inputState.name || '').trim();
@@ -266,10 +335,12 @@ export function AdminDashboard({ onBack }) {
     const updatedManual = [...manualGuests, newGuest];
     setManualGuests(updatedManual);
     localStorage.setItem('helio_margarida_manual_guests', JSON.stringify(updatedManual));
+    syncManualGuestsToFirestore(updatedManual);
 
     const updatedAssignments = { ...seatingAssignments, [newGuest.id]: tableId };
     setSeatingAssignments(updatedAssignments);
     localStorage.setItem('helio_margarida_seating_assignments', JSON.stringify(updatedAssignments));
+    syncSeatingAssignmentsToFirestore(updatedAssignments);
 
     // Reset input
     setQuickInputs({
@@ -278,7 +349,7 @@ export function AdminDashboard({ onBack }) {
     });
   };
 
-  const handleAddManualGuest = (e) => {
+  const handleAddManualGuest = async (e) => {
     e.preventDefault();
     if (!manualGuestName.trim()) return;
 
@@ -291,11 +362,13 @@ export function AdminDashboard({ onBack }) {
     const updatedManual = [...manualGuests, newGuest];
     setManualGuests(updatedManual);
     localStorage.setItem('helio_margarida_manual_guests', JSON.stringify(updatedManual));
+    syncManualGuestsToFirestore(updatedManual);
 
     if (manualGuestTable) {
       const updatedAssignments = { ...seatingAssignments, [newGuest.id]: manualGuestTable };
       setSeatingAssignments(updatedAssignments);
       localStorage.setItem('helio_margarida_seating_assignments', JSON.stringify(updatedAssignments));
+      syncSeatingAssignmentsToFirestore(updatedAssignments);
     }
 
     setManualGuestName('');
@@ -304,17 +377,19 @@ export function AdminDashboard({ onBack }) {
     setIsAddManualGuestOpen(false);
   };
 
-  const handleDeleteGuest = (guest) => {
+  const handleDeleteGuest = async (guest) => {
     if (guest.source === 'manual') {
       if (window.confirm(`Deseja apagar o convidado "${guest.name}" do sistema?`)) {
         const updated = manualGuests.filter(g => g.id !== guest.id);
         setManualGuests(updated);
         localStorage.setItem('helio_margarida_manual_guests', JSON.stringify(updated));
+        syncManualGuestsToFirestore(updated);
 
         const updatedAssignments = { ...seatingAssignments };
         delete updatedAssignments[guest.id];
         setSeatingAssignments(updatedAssignments);
         localStorage.setItem('helio_margarida_seating_assignments', JSON.stringify(updatedAssignments));
+        syncSeatingAssignmentsToFirestore(updatedAssignments);
       }
     } else {
       // RSVP guest: remove from table assignment
@@ -323,11 +398,12 @@ export function AdminDashboard({ onBack }) {
         delete updatedAssignments[guest.id];
         setSeatingAssignments(updatedAssignments);
         localStorage.setItem('helio_margarida_seating_assignments', JSON.stringify(updatedAssignments));
+        syncSeatingAssignmentsToFirestore(updatedAssignments);
       }
     }
   };
 
-  const handleAssignGuestToTable = (guestId, tableId) => {
+  const handleAssignGuestToTable = async (guestId, tableId) => {
     const updated = { ...seatingAssignments };
     if (!tableId || tableId === 'none') {
       delete updated[guestId];
@@ -336,6 +412,7 @@ export function AdminDashboard({ onBack }) {
     }
     setSeatingAssignments(updated);
     localStorage.setItem('helio_margarida_seating_assignments', JSON.stringify(updated));
+    syncSeatingAssignmentsToFirestore(updated);
     setTransferringGuest(null);
   };
 

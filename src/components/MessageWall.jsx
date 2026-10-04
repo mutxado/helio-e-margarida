@@ -1,65 +1,82 @@
 import React, { useState, useEffect } from 'react';
 import { Heart, Send, Sparkles } from 'lucide-react';
+import { saveMessageToFirestore, subscribeToMessages } from '../firebase';
 
 export function MessageWall() {
-  const [messages, setMessages] = useState([
+  const initialMessages = [
     {
-      id: 1,
+      id: 'default-1',
       author: 'Família Nhamposse',
       text: 'Que Deus derrame ricas bênçãos sobre o vosso lar e casamento. Estamos radiantes de alegria por vocês!',
       date: 'Recente'
     },
     {
-      id: 2,
+      id: 'default-2',
       author: 'Amigos & Padrinhos',
       text: 'Hélio e Margarida, que a cumplicidade e o carinho cresçam a cada dia nesta linda caminhada a dois.',
       date: 'Recente'
     },
     {
-      id: 3,
+      id: 'default-3',
       author: 'Família Guilima',
       text: 'Uma união selada por Deus! Desejamos sabedoria, paz e prosperidade para o vosso futuro juntos.',
       date: 'Recente'
     }
-  ]);
+  ];
 
+  const [messages, setMessages] = useState(initialMessages);
   const [author, setAuthor] = useState('');
   const [text, setText] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    // 1. Carregar do localStorage se existir
     try {
       const saved = localStorage.getItem('helio_margarida_messages');
       if (saved) setMessages(JSON.parse(saved));
     } catch (e) {
       console.log('Using default messages');
     }
+
+    // 2. Ouvir atualizações em tempo real do Firebase Firestore
+    const unsubscribe = subscribeToMessages((cloudMessages) => {
+      if (cloudMessages && cloudMessages.length > 0) {
+        setMessages(cloudMessages);
+        try {
+          localStorage.setItem('helio_margarida_messages', JSON.stringify(cloudMessages));
+        } catch (e) {}
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  const handleAddMessage = (e) => {
+  const handleAddMessage = async (e) => {
     e.preventDefault();
     if (!author.trim() || !text.trim()) return;
 
     setIsSubmitting(true);
 
     const newMsg = {
-      id: Date.now(),
       author: author.trim(),
       text: text.trim(),
-      date: 'Agora mesmo'
+      date: new Date().toLocaleDateString('pt-MZ')
     };
 
-    const updated = [newMsg, ...messages];
-    setMessages(updated);
+    try {
+      await saveMessageToFirestore(newMsg);
+    } catch (err) {
+      console.log('Firebase message error, saving locally:', err);
+      const localUpdated = [{ ...newMsg, id: Date.now() }, ...messages];
+      setMessages(localUpdated);
+      try {
+        localStorage.setItem('helio_margarida_messages', JSON.stringify(localUpdated));
+      } catch (e) {}
+    }
+
     setAuthor('');
     setText('');
     setIsSubmitting(false);
-
-    try {
-      localStorage.setItem('helio_margarida_messages', JSON.stringify(updated));
-    } catch (e) {
-      console.log('Saved to state');
-    }
   };
 
   return (

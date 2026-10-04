@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { Send, CheckCircle2, User, Users, MessageSquare, Utensils, Heart } from 'lucide-react';
 import { weddingData } from '../data/weddingData';
+import { saveRsvpToFirestore } from '../firebase';
 
 export function RsvpForm() {
   const [formData, setFormData] = useState({
@@ -29,7 +30,14 @@ export function RsvpForm() {
       timestamp: new Date().toLocaleString('pt-MZ')
     };
 
-    // 1. Guardar na memória local do navegador como backup
+    // 1. Guardar no Firebase Firestore (Nuvem em Tempo Real)
+    try {
+      await saveRsvpToFirestore(rsvpPayload);
+    } catch (err) {
+      console.log('Firebase save error, saving local backup:', err);
+    }
+
+    // 2. Guardar na memória local do navegador como backup
     try {
       const existing = JSON.parse(localStorage.getItem('helio_margarida_rsvp_confirmations') || '[]');
       localStorage.setItem('helio_margarida_rsvp_confirmations', JSON.stringify([rsvpPayload, ...existing]));
