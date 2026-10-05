@@ -5,7 +5,6 @@ import { Story } from './components/Story';
 import { Couple } from './components/Couple';
 import { ScheduleLocation } from './components/ScheduleLocation';
 import { Gallery } from './components/Gallery';
-import { GiftRegistry } from './components/GiftRegistry';
 import { RsvpForm } from './components/RsvpForm';
 import { MessageWall } from './components/MessageWall';
 import { Footer } from './components/Footer';
@@ -43,7 +42,6 @@ export default function App() {
         <Couple />
         <ScheduleLocation />
         <Gallery />
-        <GiftRegistry />
         <RsvpForm />
         <MessageWall />
       </main>

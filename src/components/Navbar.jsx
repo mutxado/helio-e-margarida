@@ -19,7 +19,6 @@ export function Navbar() {
     { name: 'Noivos', href: '#couple' },
     { name: 'Programa', href: '#schedule' },
     { name: 'Galeria', href: '#gallery' },
-    { name: 'Presentes', href: '#gifts' },
     { name: 'Mural', href: '#messages' },
   ];
 

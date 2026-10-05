@@ -55,11 +55,17 @@ export function Hero() {
           {/* Text & Action Column */}
           <div className="lg:col-span-7 text-center lg:text-left text-white order-2 lg:order-1">
             
-            {/* Floating Blessing Pill */}
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-[#C5A059]/40 text-[#E8D7B0] text-[11px] sm:text-xs uppercase tracking-widest font-semibold mb-6 shadow-md">
-              <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
-              <span>Com a Bênção de Deus & das Nossas Famílias</span>
-              <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+            {/* Floating Blessing & Family Invitation Header */}
+            <div className="space-y-3 mb-6">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-[#C5A059]/40 text-[#E8D7B0] text-[11px] sm:text-xs uppercase tracking-widest font-semibold shadow-md">
+                <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+                <span>Com a Bênção de Deus</span>
+                <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+              </div>
+
+              <p className="font-cormorant italic text-lg sm:text-2xl text-[#E8D7B0] font-normal tracking-wide max-w-xl">
+                A família Guilima e Nhamposse tem a honra de convidar para a celebração do matrimónio dos seus filhos
+              </p>
             </div>
 
             {/* Grand Names */}
