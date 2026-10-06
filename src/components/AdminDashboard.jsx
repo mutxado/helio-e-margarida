@@ -189,7 +189,7 @@ export function AdminDashboard({ onBack }) {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Confirmacoes_Casamento_Helio_e_Margarida_${new Date().toISOString().slice(0,10)}.csv`);
+    link.setAttribute('download', `Confirmacoes_Casamento_Margarida_e_Helio_${new Date().toISOString().slice(0,10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -453,7 +453,7 @@ export function AdminDashboard({ onBack }) {
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Mapa_de_Mesas_Casamento_Helio_e_Margarida_${new Date().toISOString().slice(0,10)}.csv`);
+    link.setAttribute('download', `Mapa_de_Mesas_Casamento_Margarida_e_Helio_${new Date().toISOString().slice(0,10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -499,7 +499,7 @@ export function AdminDashboard({ onBack }) {
             Painel Privado
           </h2>
           <p className="text-xs text-[#4D5E54] mb-8">
-            Área de gestão reservada aos noivos (Hélio Nhamposse & Margarida Alfredo Guilima).
+            Área de gestão reservada aos noivos (Margarida Alfredo Guilima & Hélio Nhamposse).
           </p>
 
           <form onSubmit={handleLogin} className="space-y-4">
@@ -550,7 +550,7 @@ export function AdminDashboard({ onBack }) {
               Painel de Gestão dos Noivos
             </span>
             <h1 className="font-serif text-2xl sm:text-3xl text-[#1A2820] font-semibold">
-              Hélio Nhamposse & Margarida Alfredo Guilima
+              Margarida Alfredo Guilima & Hélio Nhamposse
             </h1>
           </div>
 

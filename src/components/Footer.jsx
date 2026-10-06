@@ -16,7 +16,7 @@ export function Footer({ onOpenAdmin }) {
         
         {/* Monogram Brand */}
         <h2 className="font-serif text-3xl sm:text-4xl text-[#E8D7B0] tracking-widest uppercase mb-2">
-          Hélio <span className="font-script text-4xl sm:text-5xl text-[#C5A059] lowercase px-1">&</span> Margarida
+          Margarida <span className="font-script text-4xl sm:text-5xl text-[#C5A059] lowercase px-1">&</span> Hélio
         </h2>
         
         <p className="text-xs uppercase tracking-[0.25em] text-[#A3B8AC] font-medium mb-6">
@@ -33,7 +33,7 @@ export function Footer({ onOpenAdmin }) {
         <div className="flex flex-wrap items-center justify-center gap-4 mb-10">
           <button
             onClick={scrollToTop}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-xs text-[#E8D7B0] border border-[#C5A059]/30 transition-all uppercase tracking-wider"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-white/10 hover:bg-white/20 text-xs text-[#E8D7B0] border border-[#C5A059]/30 transition-all uppercase tracking-wider cursor-pointer"
           >
             <ArrowUp className="w-3.5 h-3.5" />
             Voltar ao Topo
@@ -41,7 +41,7 @@ export function Footer({ onOpenAdmin }) {
 
           <button
             onClick={onOpenAdmin}
-            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#2D6A4F]/30 hover:bg-[#2D6A4F]/50 text-xs text-[#E8D7B0] border border-[#C5A059]/40 transition-all uppercase tracking-wider"
+            className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-[#2D6A4F]/30 hover:bg-[#2D6A4F]/50 text-xs text-[#E8D7B0] border border-[#C5A059]/40 transition-all uppercase tracking-wider cursor-pointer"
           >
             <Lock className="w-3.5 h-3.5" />
             Painel Privado dos Noivos
@@ -49,7 +49,7 @@ export function Footer({ onOpenAdmin }) {
         </div>
 
         <div className="text-xs text-[#8A9C91] border-t border-white/10 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 font-light">
-          <span>&copy; 2026 Hélio Nhamposse & Margarida Alfredo Guilima. Todos os direitos reservados.</span>
+          <span>&copy; 2026 Margarida Alfredo Guilima & Hélio Nhamposse. Todos os direitos reservados.</span>
           <span className="flex items-center gap-1.5">
             Feito com <Heart className="w-3.5 h-3.5 text-[#C5A059] fill-[#C5A059]" /> para o nosso casamento
           </span>

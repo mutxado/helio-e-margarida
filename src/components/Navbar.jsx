@@ -33,7 +33,7 @@ export function Navbar() {
         {/* Monogram Brand - Single Clean Line */}
         <a href="#hero" className="flex items-center gap-2 group shrink-0">
           <span className="font-serif text-base sm:text-lg tracking-[0.18em] uppercase font-medium text-white transition-colors group-hover:text-[#E8D7B0] whitespace-nowrap">
-            Hélio <span className="font-script text-2xl text-[#C5A059] px-0.5 font-normal">&</span> Margarida
+            Margarida <span className="font-script text-2xl text-[#C5A059] px-0.5 font-normal">&</span> Hélio
           </span>
         </a>
 

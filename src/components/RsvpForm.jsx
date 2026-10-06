@@ -60,7 +60,7 @@ export function RsvpForm() {
     setSubmitted(true);
 
     // 3. Montar mensagem formatada e abrir o WhatsApp
-    const textMsg = `Olá Hélio e Margarida! Acabei de confirmar a minha presença no vosso casamento 🎉\n\n` +
+    const textMsg = `Olá Margarida e Hélio! Acabei de confirmar a minha presença no vosso casamento 🎉\n\n` +
       `*Nome:* ${rsvpPayload.name}\n` +
       `*Lugares:* ${rsvpPayload.guests}\n` +
       `*Confirmação:* ${rsvpPayload.attending === 'sim' ? 'Sim, estarei presente!' : 'Infelizmente não poderei comparecer'}\n` +
@@ -185,7 +185,7 @@ export function RsvpForm() {
               <div>
                 <label className="block text-xs uppercase tracking-wider font-bold text-[#1A2820] mb-2 flex items-center gap-2">
                   <MessageSquare className="w-4 h-4 text-[#2D6A4F]" />
-                  Mensagem Carinhosa para Hélio & Margarida
+                  Mensagem Carinhosa para Margarida & Hélio
                 </label>
                 <textarea
                   rows={3}

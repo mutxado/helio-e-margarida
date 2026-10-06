@@ -55,22 +55,27 @@ export function Hero() {
           {/* Text & Action Column */}
           <div className="lg:col-span-7 text-center lg:text-left text-white order-2 lg:order-1">
             
-            {/* Floating Blessing & Family Invitation Header */}
-            <div className="space-y-3 mb-6">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-[#C5A059]/40 text-[#E8D7B0] text-[11px] sm:text-xs uppercase tracking-widest font-semibold shadow-md">
-                <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+            {/* Floating Blessing & Grand Family Invitation Header */}
+            <div className="space-y-4 mb-7">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-[#C5A059]/40 text-[#E8D7B0] text-xs sm:text-sm uppercase tracking-widest font-semibold shadow-md">
+                <Sparkles className="w-4 h-4 text-[#C5A059]" />
                 <span>Com a Bênção de Deus</span>
-                <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+                <Sparkles className="w-4 h-4 text-[#C5A059]" />
               </div>
 
-              <p className="font-cormorant italic text-lg sm:text-2xl text-[#E8D7B0] font-normal tracking-wide max-w-xl">
-                A família Guilima e Nhamposse tem a honra de convidar para a celebração do matrimónio dos seus filhos
-              </p>
+              <div className="border-l-3 border-[#C5A059] pl-4 sm:pl-6 py-1 bg-white/5 rounded-r-2xl backdrop-blur-xs">
+                <p className="font-serif text-2xl sm:text-4xl text-white font-normal leading-snug tracking-wide drop-shadow-sm">
+                  A família <span className="text-[#E8D7B0] font-bold underline decoration-[#C5A059]/70 underline-offset-6">Guilima</span> e <span className="text-[#E8D7B0] font-bold underline decoration-[#C5A059]/70 underline-offset-6">Nhamposse</span>
+                </p>
+                <p className="font-cormorant italic text-lg sm:text-2xl text-[#E8D7B0]/90 font-light mt-1.5 leading-snug">
+                  tem a honra de convidar para a celebração do matrimónio dos seus filhos
+                </p>
+              </div>
             </div>
 
-            {/* Grand Names */}
+            {/* Grand Names (Margarida & Hélio) */}
             <h1 className="font-serif text-4xl sm:text-6xl xl:text-7xl font-normal tracking-wide mb-3 leading-tight text-white drop-shadow-md">
-              Hélio <span className="font-script text-5xl sm:text-7xl xl:text-8xl text-[#E8D7B0] px-1 font-normal">&</span> Margarida
+              Margarida <span className="font-script text-5xl sm:text-7xl xl:text-8xl text-[#E8D7B0] px-1 font-normal">&</span> Hélio
             </h1>
 
             <p className="text-xs sm:text-sm uppercase tracking-[0.25em] text-[#C5A059] font-semibold mb-6">
@@ -146,14 +151,14 @@ export function Hero() {
               <div className="relative rounded-t-[170px] rounded-b-[36px] overflow-hidden border-4 border-[#C5A059]/60 shadow-2xl bg-[#13251C] aspect-[3/4] sm:aspect-[2/3]">
                 <img
                   src={weddingData.couple.heroBg}
-                  alt="Hélio Nhamposse & Margarida Alfredo Guilima"
+                  alt="Margarida Alfredo Guilima & Hélio Nhamposse"
                   className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
                 />
 
                 {/* Bottom Frame Badge */}
                 <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#0B1510] via-[#0B1510]/80 to-transparent pt-10 pb-4 px-6 text-center">
                   <span className="font-serif text-sm sm:text-base font-medium text-[#E8D7B0] tracking-wide block">
-                    Hélio Nhamposse & Margarida Guilima
+                    Margarida Guilima & Hélio Nhamposse
                   </span>
                   <span className="text-[10px] text-[#C5A059] uppercase tracking-widest font-semibold">
                     28 de Novembro de 2026

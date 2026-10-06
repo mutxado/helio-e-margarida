@@ -13,7 +13,7 @@ export function MessageWall() {
     {
       id: 'default-2',
       author: 'Amigos & Padrinhos',
-      text: 'Hélio e Margarida, que a cumplicidade e o carinho cresçam a cada dia nesta linda caminhada a dois.',
+      text: 'Margarida e Hélio, que a cumplicidade e o carinho cresçam a cada dia nesta linda caminhada a dois.',
       date: 'Recente'
     },
     {

@@ -19,7 +19,7 @@ export const weddingData = {
       image: `${base}images/margarida_portrait.jpg`
     },
     heroBg: `${base}images/photo_emerald_couple.jpg`,
-    hashtag: "#HelioEMargarida2026",
+    hashtag: "#MargaridaEHelio2026",
     tagline: "CELEBRAÇÃO DO NOSSO AMOR · MAPUTO",
     dateText: "Sábado, 28 de Novembro de 2026",
     targetDate: "2026-11-28T09:00:00",
@@ -84,7 +84,7 @@ export const weddingData = {
   gallery: [
     {
       id: 1,
-      title: "Hélio & Margarida — Traje de Celebração",
+      title: "Margarida & Hélio — Traje de Celebração",
       url: `${base}images/photo_emerald_couple.jpg`
     },
     {
