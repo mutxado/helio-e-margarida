@@ -22,7 +22,7 @@ export const weddingData = {
     hashtag: "#MargaridaEHelio2026",
     tagline: "CELEBRAÇÃO DO NOSSO AMOR · MAPUTO",
     dateText: "Sábado, 28 de Novembro de 2026",
-    targetDate: "2026-11-28T09:00:00",
+    targetDate: "2026-11-28T07:45:00",
     whatsappPhone: "258845585442",
     flyerImage: `${base}images/photo_emerald_couple.jpg`
   },
@@ -50,6 +50,16 @@ export const weddingData = {
 
   events: [
     {
+      id: "civil",
+      title: "Registo Civil",
+      time: "07:45 H",
+      place: "Conservatória da Costa do Sol",
+      address: "Centro Comercial Super Marés, Costa do Sol, Maputo",
+      details: "A oficialização legal do nosso matrimónio perante a lei e testemunhas.",
+      mapUrl: "https://maps.google.com/?q=Super+Mares+Costa+do+Sol+Maputo",
+      icon: "FileCheck"
+    },
+    {
       id: "church",
       title: "Cerimónia Religiosa",
       time: "09:00 H",
@@ -58,16 +68,6 @@ export const weddingData = {
       details: "A celebração solene e bênção do nosso matrimónio diante de Deus e dos nossos entes queridos.",
       mapUrl: "https://maps.google.com/?q=Embaixada+de+Cristo+Maxaquene+Maputo",
       icon: "Church"
-    },
-    {
-      id: "civil",
-      title: "Registo Civil",
-      time: "A Seguir",
-      place: "Conservatória da Costa do Sol",
-      address: "Costa do Sol, Cidade de Maputo",
-      details: "A oficialização legal do nosso matrimónio perante a lei e testemunhas.",
-      mapUrl: "https://maps.google.com/?q=Conservatoria+Registo+Civil+Costa+do+Sol+Maputo",
-      icon: "FileCheck"
     },
     {
       id: "reception",
